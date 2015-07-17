@@ -9,13 +9,13 @@ module Querrel
         specs = conns.map do |c|
           [c, base_spec.dup.update(database: c)]
         end
-        specs = specs.to_hash
+        specs = Hash[specs]
       else
         case conns
         when Hash
           specs = conns
         when Array
-          specs = ActiveRecord::Base.configurations.select{ |n, _| conns.include?(n) }
+          specs = ActiveRecord::Base.configurations.select{ |n, _| conns.include?(n.to_sym) }
         end
       end
 

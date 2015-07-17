@@ -6,8 +6,7 @@ class InstanceTest < Querrel::Test
     resolver = Querrel::ConnectionResolver.new(conns, false)
 
     assert_equal 2, resolver.configurations.length
-    assert_equal conns, resolver.configurations.keys
-    assert_equal conns, resolver.configurations.map{ |c| c[:database] }
+    assert_equal conns.map(&:to_s), resolver.configurations.keys
   end
 
   def test_db_name_resolver
@@ -17,7 +16,7 @@ class InstanceTest < Querrel::Test
 
     assert_equal 4, resolver.configurations.length
     assert_equal conns, resolver.configurations.keys
-    assert_equal conns, resolver.configurations.map{ |c| c[:database] }
+    assert_equal conns, resolver.configurations.values.map{ |c| c[:database] }
   end
 
   def test_hash_config_resolver
@@ -31,7 +30,7 @@ class InstanceTest < Querrel::Test
         database: "test/dbs/test_db_2.sqlite3"
       }
     }
-    resolver = Querrel::ConnectionResolver.new(conns, true)
+    resolver = Querrel::ConnectionResolver.new(conns, false)
 
     assert_equal conns, resolver.configurations
   end

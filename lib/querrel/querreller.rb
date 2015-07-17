@@ -15,7 +15,7 @@ module Querrel
 
     def map(scope, options = {})
       if options.key?(:on)
-        resolver = init_resolver(dbs, !!options[:db_names])
+        resolver = ConnectionResolver.new(dbs, !!options[:db_names])
         dbs = resolver.configurations.keys
       else
         resolver = @connection_resolver
