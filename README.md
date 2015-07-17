@@ -1,6 +1,6 @@
 # Querrel
 
-Playing around with the idea of parallel queries to multiple databases with ActiveRecord.
+Playing around with the idea of parallel queries to multiple databases with ActiveRecord, more info [on my blog post](http://www.wordofmike.net/j/shard-query-rails-querying-multiple-databases).
 
 ## Installation
 
