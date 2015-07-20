@@ -4,8 +4,8 @@ module Querrel
   class Querreller
     attr_accessor :connection_resolver
 
-    def initialize(dbs, db_names = false)
-      @connection_resolver = ConnectionResolver.new(dbs, db_names)
+    def initialize(dbs, options = {})
+      @connection_resolver = ConnectionResolver.new(dbs, options[:db_names])
     end
 
     def query(scope, options = {})

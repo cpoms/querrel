@@ -8,11 +8,11 @@ module Querrel
     end
 
     def query(scope, opts)
-      Querreller.new(opts[:on], opts[:db_names]).query(scope)
+      Querreller.new(opts.delete(:on), opts).query(scope)
     end
 
     def map(scope, opts)
-      Querreller.new(opts[:on], opts[:db_names]).map(scope)
+      Querreller.new(opts.delete(:on), opts).map(scope)
     end
   end
 end
