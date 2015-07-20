@@ -30,10 +30,10 @@ module Querrel
       dbs.each do |db|
         threads << Thread.new do
           while_connected_to(db, resolver) do |conn|
-            result_set = conn.select_all(sql, "MapReduce Load")
+            result_set = conn.select_all(sql, "Querrel Load")
             column_types = result_set.column_types
 
-            results[db] = result_set.map { |record| query_model.instantiate(record, column_types) }
+            results[db] = result_set.map { |record| query_model.instantiate(record, column_types).tap{ |r| r.readonly! } }
           end
         end
       end
@@ -43,11 +43,7 @@ module Querrel
     end
 
     def reduce(buckets)
-      buckets.map do |db, results|
-        results.map do |result|
-          result.tap { |r| r.readonly! }
-        end
-      end.flatten
+      buckets.flat_map{ |db, results| results }
     end
 
     def while_connected_to(db, resolver, &b)
