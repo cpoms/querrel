@@ -1,4 +1,4 @@
-<% 100.times do |i| %>
+<% 20.times do |i| %>
 sqlite_db_<%= i %>:
   adapter: sqlite3
   database: test/dbs/test_db_<%= i %>.sqlite3

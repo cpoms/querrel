@@ -39,6 +39,24 @@ class InstanceTest < Querrel::Test
       scope.pluck(:name)
     end
 
-    assert names * @dbs.length, res
+    assert_equal names * @dbs.length, res
+  end
+
+  def test_runner
+    s = Mutex.new
+    configs_actual = []
+
+    @q.run do |q|
+      s.synchronize do
+        configs_actual << q[Product].connection_config
+      end
+    end
+
+    configs = Querrel::ConnectionResolver.new(@dbs, false).configurations.values
+
+    configs = configs.map{ |c| Hash[c.map{ |k, v| [k.to_s, v] }] }.sort_by{ |c| c["database"] }
+    configs_actual = configs_actual.map{ |c| Hash[c.map{ |k, v| [k.to_s, v] }] }.sort_by{ |c| c["database"] }
+
+    assert_equal configs, configs_actual
   end
 end
