@@ -20,5 +20,5 @@ tmp
 *.o
 *.a
 mkmf.log
-test/debug.log
+test/setup/debug.log
 test/dbs/*.sqlite3

@@ -31,4 +31,13 @@ class NonInstanceTest < Querrel::Test
     assert res.any?, "No records returned"
     assert res.all?{ |p| p.readonly? }, "Records not readonly"
   end
+
+  def test_block
+    names = Product.pluck(:name)
+    res = Querrel.query(Product.all, on: @dbs) do |scope|
+      scope.pluck(:name)
+    end
+
+    assert names * @dbs.length, res
+  end
 end
