@@ -15,7 +15,8 @@ module Querrel
         when Hash
           specs = conns
         when Array
-          specs = ActiveRecord::Base.configurations.select{ |n, _| conns.include?(n.to_sym) }
+          conns.map!(&:to_s)
+          specs = ActiveRecord::Base.configurations.select{ |n, _| conns.include?(n.to_s) }
         end
       end
 

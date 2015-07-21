@@ -2,11 +2,16 @@ require_relative 'setup/test_helper'
 
 class InstanceTest < Querrel::Test
   def test_env_resolver
-    conns = [:sqlite_db_0, :sqlite_db_1]
-    resolver = Querrel::ConnectionResolver.new(conns, false)
+    sym_conns = [:sqlite_db_0, :sqlite_db_1]
+    resolver_sym = Querrel::ConnectionResolver.new(sym_conns, false)
+    string_conns = ['sqlite_db_0', 'sqlite_db_1']
+    resolver_string = Querrel::ConnectionResolver.new(string_conns, false)
 
-    assert_equal 2, resolver.configurations.length
-    assert_equal conns.map(&:to_s), resolver.configurations.keys
+    assert_equal 2, resolver_sym.configurations.length
+    assert_equal string_conns, resolver_sym.configurations.keys
+
+    assert_equal 2, resolver_string.configurations.length
+    assert_equal string_conns, resolver_string.configurations.keys
   end
 
   def test_db_name_resolver
@@ -33,8 +38,5 @@ class InstanceTest < Querrel::Test
     resolver = Querrel::ConnectionResolver.new(conns, false)
 
     assert_equal conns, resolver.configurations
-  end
-
-  def test_default_resolver
   end
 end
