@@ -44,9 +44,9 @@ There is also a `run` method which instead of running a preprescribed scope and 
 
 ```ruby
 require 'thread'
-all_brands = Brand.all
+all_brands = []
 b_s = Mutex.new
-all_products = Product.all
+all_products = []
 p_s = Mutex.new
 
 Querrel.run(on: dbs) do |q|
