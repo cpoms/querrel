@@ -14,6 +14,7 @@ class NonInstanceTest < Querrel::Test
 
     assert_equal num_brands * @dbs.length, res.length,
       "Not returning the correct number of results"
+    assert res.all?{ |r| r.is_a?(Brand) }
   end
 
   def test_map

@@ -34,7 +34,9 @@ module Querrel
               res.to_a.each(&:readonly!) if res.is_a?(ActiveRecord::Relation)
               res
             else
-              local_scope.to_a.each(&:readonly!)
+              local_scope.to_a.map do |r|
+                query_model.instantiate(r.attributes, {}).tap(&:readonly!)
+              end
             end
 
             results_semaphore.synchronize { results[db] = local_results }

@@ -18,6 +18,8 @@ Or install it yourself as:
 
 ## Usage
 
+### Basic
+
 You can use with Querrel directly via it's top level namespace, or by creating an instance:
 
 ```ruby
@@ -27,6 +29,35 @@ all_brands = Querrel.new(['db1', 'db2', 'db3']).query(Brand.all)
 ```
 
 Either of the above will give you an array of all the Brand objects from all the given databases. The records will be marked as readonly.
+
+### Advanced
+
+`query` will yield a block with the passed in `ActiveRecord::Relation`, this allows you to do additional operations on the results before they are merged, for example you could use pluck:
+
+```ruby
+all_brand_names = q.query(Brand.all) do |s|
+  s.pluck(:name)
+end
+```
+
+There is also a `run` method which instead of running a preprescribed scope and merging, will yield the `ConnectedModelFactory` class which allows you to wrap any ActiveRecord class so that you can query it in the thread, for instance:
+
+```ruby
+require 'thread'
+all_brands = Brand.all
+b_s = Mutex.new
+all_products = Product.all
+p_s = Mutex.new
+
+Querrel.run(on: dbs) do |q|
+  b_s.synchronize { all_brands += q[Brand].all.to_a }
+  p_s.synchronize { all_products += q[Product].all.to_a }
+end
+```
+
+At the moment, any queries using `run` and the ConnectedModelFactory won't return objects of the class passed in, but an anonymous class instead. However, `query` can marshall the results back into the original class.
+
+### Databases
 
 There are three ways in which you can instruct Querrel which databases to use:
 
@@ -46,6 +77,14 @@ There are three ways in which you can instruct Querrel which databases to use:
       }
     })
     ```
+
+### Configuration
+
+By default Querrel will use a maximum of 20 threads, but you can adjust this using the `:threads` option:
+
+```ruby
+q = Querrel.new(dbs, threads: 50)
+```
 
 ## Contributing
 
