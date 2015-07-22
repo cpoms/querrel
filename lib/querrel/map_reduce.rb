@@ -6,6 +6,7 @@ module Querrel
     end
 
     def map(scope, options = {}, &blk)
+      options = @options.merge(options)
       if options.key?(:on)
         resolver = ConnectionResolver.new(options[:on], !!options[:db_names])
         dbs = resolver.configurations.keys
@@ -16,29 +17,36 @@ module Querrel
 
       query_model = scope.model
       results = {}
+      results_semaphore = Mutex.new
 
-      threads = []
+      pool = StaticPool.new(options[:threads] || 20)
       dbs.each do |db|
-        threads << Thread.new do
+        pool.enqueue do
+          Thread.current[:querrel_connected_models] = []
           con_spec = retrieve_connection_spec(db, resolver)
           Thread.current[:querrel_con_spec] = con_spec
           dynamic_class = ConnectedModelFactory[query_model, con_spec]
 
           begin
             local_scope = dynamic_class.all.merge(scope)
-            results[db] = if block_given?
-              res = yield(local_scope)
+            local_results = if block_given?
+              res = yield(local_scope, ConnectedModelFactory)
               res.to_a.each(&:readonly!) if res.is_a?(ActiveRecord::Relation)
               res
             else
               local_scope.to_a.each(&:readonly!)
             end
+
+            results_semaphore.synchronize { results[db] = local_results }
           ensure
-            dynamic_class.connection_pool.release_connection
+            Thread.current[:querrel_connected_models].each do |m|
+              m.connection_pool.release_connection
+            end
+            Thread.current[:querrel_connected_models] = nil
           end
         end
       end
-      threads.each(&:join)
+      pool.do_your_thang!
 
       results
     end

@@ -6,6 +6,8 @@ module Querrel
       Class.new(model).tap do |m|
         m.send(:define_singleton_method, :name) { dynamic_class_name }
         m.establish_connection(con_spec.config)
+
+        Thread.current[:querrel_connected_models] << m
       end
     end
   end
