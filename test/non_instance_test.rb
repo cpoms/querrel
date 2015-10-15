@@ -46,9 +46,9 @@ class NonInstanceTest < Querrel::Test
   def test_runner
     s = Mutex.new
     configs_actual = []
-    Querrel.run(on: @dbs) do |q|
+    Querrel.run(on: @dbs) do
       s.synchronize do
-        configs_actual << q[Product].connection_config
+        configs_actual << Product.connection_config
       end
     end
 

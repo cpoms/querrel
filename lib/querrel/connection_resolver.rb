@@ -23,7 +23,7 @@ module Querrel
       @resolver = ActiveRecord::ConnectionAdapters::ConnectionSpecification::Resolver.new(specs)
     end
 
-    [:configurations, :spec].each do |m|
+    [:configurations, :spec, :resolve].each do |m|
       define_method(m) do |*args, &block|
         @resolver.send(m, *args, &block)
       end

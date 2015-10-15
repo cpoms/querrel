@@ -40,7 +40,7 @@ all_brand_names = q.query(Brand.all) do |s|
 end
 ```
 
-There is also a `run` method which instead of running a preprescribed scope and merging, will yield the `ConnectedModelFactory` class which allows you to wrap any ActiveRecord class so that you can query it in the thread, for instance:
+There is also a `run` method which instead of running a preprescribed scope and merging, will take a block which allows you do anything you want with the specified database connection, for instance:
 
 ```ruby
 require 'thread'
@@ -49,13 +49,11 @@ b_s = Mutex.new
 all_products = []
 p_s = Mutex.new
 
-Querrel.run(on: dbs) do |q|
-  b_s.synchronize { all_brands += q[Brand].all.to_a }
-  p_s.synchronize { all_products += q[Product].all.to_a }
+Querrel.run(on: dbs) do |db|
+  b_s.synchronize { all_brands += Brand.all.to_a }
+  p_s.synchronize { all_products += Product.all.to_a }
 end
 ```
-
-At the moment, any queries using `run` and the ConnectedModelFactory won't return objects of the class passed in, but an anonymous class instead. However, `query` can marshall the results back into the original class.
 
 ### Databases
 

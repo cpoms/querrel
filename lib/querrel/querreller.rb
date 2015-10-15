@@ -1,4 +1,3 @@
-require 'querrel/connected_model_factory'
 require 'querrel/connection_resolver'
 require 'querrel/static_pool'
 require 'querrel/map_reduce'
@@ -27,15 +26,12 @@ module Querrel
       dbs.each do |db|
         pool.enqueue do
           begin
-            Thread.current[:querrel_connected_models] = []
-            con_spec = retrieve_connection_spec(db, resolver)
-            Thread.current[:querrel_con_spec] = con_spec
-            yield(ConnectedModelFactory)
+            ActiveRecord::Base.connection_handler = ActiveRecord::ConnectionAdapters::ConnectionHandler.new
+            con_config = retrieve_connection_config(db, resolver)
+            ActiveRecord::Base.establish_connection(con_config)
+            yield(db)
           ensure
-            Thread.current[:querrel_connected_models].each do |m|
-              m.connection_pool.release_connection
-            end
-            Thread.current[:querrel_connected_models] = nil
+            ActiveRecord::Base.connection_handler.clear_all_connections!
           end
         end
       end
@@ -44,6 +40,10 @@ module Querrel
 
     def retrieve_connection_spec(db, resolver)
       resolver.spec(db.to_sym)
+    end
+
+    def retrieve_connection_config(db, resolver)
+      resolver.resolve(db.to_sym)
     end
 
     def while_connected_to(db, resolver, &b)

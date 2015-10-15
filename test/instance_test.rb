@@ -46,9 +46,9 @@ class InstanceTest < Querrel::Test
     s = Mutex.new
     configs_actual = []
 
-    @q.run do |q|
+    @q.run do
       s.synchronize do
-        configs_actual << q[Product].connection_config
+        configs_actual << Product.connection_config
       end
     end
 

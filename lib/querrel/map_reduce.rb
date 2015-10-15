@@ -15,36 +15,23 @@ module Querrel
         dbs = @connection_resolver.configurations.keys
       end
 
-      query_model = scope.model
       results = {}
       results_semaphore = Mutex.new
 
       pool = StaticPool.new(options[:threads] || 20)
       dbs.each do |db|
         pool.enqueue do
-          Thread.current[:querrel_connected_models] = []
-          con_spec = retrieve_connection_spec(db, resolver)
-          Thread.current[:querrel_con_spec] = con_spec
-          dynamic_class = ConnectedModelFactory[query_model, con_spec]
+          ActiveRecord::Base.connection_handler = ActiveRecord::ConnectionAdapters::ConnectionHandler.new
+          con_config = retrieve_connection_config(db, resolver)
+          ActiveRecord::Base.establish_connection(con_config)
 
           begin
-            local_scope = dynamic_class.all.merge(scope)
-            local_results = if block_given?
-              res = yield(local_scope, ConnectedModelFactory)
-              res.to_a.each(&:readonly!) if res.is_a?(ActiveRecord::Relation)
-              res
-            else
-              local_scope.to_a.map do |r|
-                query_model.instantiate(r.attributes, {}).tap(&:readonly!)
-              end
-            end
+            local_results = block_given? ? yield(scope, db) : scope
+            local_results.to_a.each(&:readonly!) if local_results.is_a?(ActiveRecord::Relation)
 
             results_semaphore.synchronize { results[db] = local_results }
           ensure
-            Thread.current[:querrel_connected_models].each do |m|
-              m.connection_pool.release_connection
-            end
-            Thread.current[:querrel_connected_models] = nil
+            ActiveRecord::Base.connection_handler.clear_all_connections!
           end
         end
       end
