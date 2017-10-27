@@ -1,6 +1,6 @@
 # Querrel
 
-Querrel makes it easy to query multiple databases in parallel (threads) using ActiveRecord, as if you were querying one database. Some background on the problem can be read on [my blog post](http://www.wordofmike.net/j/shard-query-rails-querying-multiple-databases), but much of the code there is no longer relevant.
+Querrel makes it easy to query multiple databases in parallel (threads) using ActiveRecord, as if you were querying one database.
 
 ## Installation
 
