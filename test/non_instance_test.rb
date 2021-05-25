@@ -48,7 +48,7 @@ class NonInstanceTest < Querrel::Test
     configs_actual = []
     Querrel.run(on: @dbs) do
       s.synchronize do
-        configs_actual << Product.connection_config
+        configs_actual << Product.connection_db_config.configuration_hash
       end
     end
 
