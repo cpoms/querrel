@@ -48,7 +48,7 @@ class InstanceTest < Querrel::Test
 
     @q.run do
       s.synchronize do
-        configs_actual << Product.connection_config
+        configs_actual << Product.connection_db_config.configuration_hash
       end
     end
 

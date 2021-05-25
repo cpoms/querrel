@@ -4,9 +4,15 @@ Querrel makes it easy to query multiple databases in parallel (threads) using Ac
 
 ## Installation
 
+Querrel version >= 2.0 is required for Rails 6 (and does not support earlier versions).  For Rails versions 5.x and earlier, use version 1.4.
+
 Add this line to your application's Gemfile:
 
-    gem 'querrel'
+    gem 'querrel', '~> 2.0'		# Rails 6
+    
+or
+
+    gem 'querrel', '~> 1.4'		# Rails 5 and earlier
 
 And then execute:
 

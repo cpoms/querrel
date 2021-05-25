@@ -9,8 +9,8 @@ ActiveRecord::Base.configurations = YAML.load(database_yml)
 ActiveRecord::Base.logger = Logger.new(File.join(File.dirname(__FILE__), "debug.log"))
 
 # load schema and fixtures to each db
-ActiveRecord::Base.configurations.keys.each do |c|
-  ActiveRecord::Base.establish_connection(c.to_sym)
+ActiveRecord::Base.configurations.configurations.each do |config|
+  ActiveRecord::Base.establish_connection(config)
   ActiveRecord::Migration.suppress_messages do
     load('schema.rb')
   end
@@ -21,8 +21,10 @@ ActiveRecord::Base.establish_connection(ENV['DB'] || :sqlite_db_0)
 
 require "active_support"
 require "database_rewinder"
+require "database_rewinder/cleaner"
 
 # configure DatabaseRewinder
-ActiveRecord::Base.configurations.keys.each do |c|
-  DatabaseRewinder[c]
+DatabaseRewinder.init
+ActiveRecord::Base.configurations.configurations.each do |config|
+  DatabaseRewinder[config.env_name]
 end

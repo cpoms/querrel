@@ -38,20 +38,8 @@ module Querrel
       pool.do_your_thang!
     end
 
-    def retrieve_connection_spec(db, resolver)
-      resolver.spec(db.to_sym)
-    end
-
     def retrieve_connection_config(db, resolver)
       resolver.resolve(db.to_sym)
-    end
-
-    def while_connected_to(db, resolver, &b)
-      conf = resolver.spec(db.to_sym)
-      pool = ActiveRecord::ConnectionAdapters::ConnectionPool.new(conf)
-      pool.with_connection(&b)
-    ensure
-      pool.disconnect!
     end
   end
 end
